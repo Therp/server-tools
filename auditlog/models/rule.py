@@ -449,6 +449,8 @@ class AuditlogRule(models.Model):
             self, log, fields_list, old_values, new_values):
         """Log field updated on a 'write' operation."""
         log_line_model = self.env['auditlog.log.line']
+        import pudb
+        pudb.set_trace()
         for field_name in fields_list:
             if field_name in FIELDS_BLACKLIST:
                 continue
