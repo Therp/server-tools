@@ -8,7 +8,7 @@ class AuditlogAutovacuum(models.TransientModel):
     _inherit = "auditlog.autovacuum"
 
     @api.model
-    def autovaccum(self, days):
+    def autovacuum(self, days):
         return super(
             AuditlogAutovacuum, self.with_context(auditlog_write=True)
         ).autovacuum(days=days)
