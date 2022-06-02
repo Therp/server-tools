@@ -99,7 +99,7 @@ class AuditlogLineAccessRule(models.Model):
             self.with_context(auditlog_write=True).env["ir.rule"].create(values)
 
     def _prepare_rule_values(self):
-        domain_force = "[" + " ('aulditlog_rule_id.log_id.model_id' , '=', %s)," % (
+        domain_force = "[" + " ('log_id.model_id' , '=', %s)," % (
             self.model_id.id
         )
         if self.field_ids:
