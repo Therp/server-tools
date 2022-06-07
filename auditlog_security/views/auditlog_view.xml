@@ -58,10 +58,10 @@
                         <tree delete="1" create="1" edit="0">
                             <field name="name" readonly="1"/>
                             <field name="model_id" readonly="1" invisible="1"/>
-                            <field name="group_ids"
+                            <field name="group_ids" widget="many2many_tags"
                                    options="{'no_create': True}"
                              />
-                            <field name="field_ids"
+                            <field name="field_ids"  widget="many2many_tags"
                                     options="{'no_create': True}"
                             />
                         </tree>
