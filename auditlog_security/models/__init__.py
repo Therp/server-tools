@@ -4,3 +4,5 @@ from . import auditlog_rule
 from . import auditlog_line_access_rule
 from . import ir_rule
 from . import auditlog_autovacuum
+from . import auditlog_log_line
+

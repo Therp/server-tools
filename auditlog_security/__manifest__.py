@@ -8,13 +8,14 @@
     "license": "AGPL-3",
     "website": "https://github.com/OCA/server-tools/",
     "category": "Tools",
-    "description": """Allow regular users to view Audit log lines 
+    "description": """Allow regular users to view Audit log lines
                    via the form view of the relevant model""",
     "depends": [
         "auditlog",
         "contacts",
     ],
     "data": [
+        "security/res_groups.xml",
         "views/auditlog_view.xml",
         "security/ir.model.access.csv",
     ],

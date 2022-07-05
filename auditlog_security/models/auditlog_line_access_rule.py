@@ -13,7 +13,7 @@ class AuditlogLineAccessRule(models.Model):
     field_ids = fields.Many2many("ir.model.fields")
     group_ids = fields.Many2many(
         "res.groups",
-        help="""Groups that will be allowed to see the logged fields, if left empty 
+        help="""Groups that will be allowed to see the logged fields, if left empty
                 default will be all users with a login""",
     )
     model_id = fields.Many2one(
@@ -23,7 +23,7 @@ class AuditlogLineAccessRule(models.Model):
         "auditlog.rule", "auditlog_access_rule_ids", readonly=True, ondelete="cascade"
     )
     state = fields.Selection(related="auditlog_rule_id.state", readonly=True)
-    
+
 
     def needs_rule(self):
         self.ensure_one()
@@ -44,12 +44,12 @@ class AuditlogLineAccessRule(models.Model):
             ("name", "not in", FIELDS_BLACKLIST),
         ]
 
-    def unlink(self):
-        to_delete = self.get_linked_rules()
-        res = super(AuditlogLineAccessRule, self).unlink()
-        if res:
-            res = res and to_delete.with_context(auditlog_write=True).unlink()
-        return res
+    # def unlink(self):
+    #     to_delete = self.get_linked_rules()
+    #     res = super(AuditlogLineAccessRule, self).unlink()
+    #     if res:
+    #         res = res and to_delete.with_context(auditlog_write=True).unlink()
+    #     return res
 
     def add_default_group_if_needed(self):
         self.ensure_one()
