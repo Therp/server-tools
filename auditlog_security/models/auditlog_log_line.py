@@ -11,5 +11,7 @@ class AuditlogLogLine(models.Model):
     user_id = fields.Many2one(
         'res.users',
         string="User",
-        default=lambda self: self.env.user
     )
+    method = fields.Char("Method", related='log_id.method')
+
+    
