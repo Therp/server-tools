@@ -33,61 +33,51 @@ class AuditlogRule(models.Model):
             lines.unlink()
         return res
 
-    def _get_view_log_lines_action(rule):
-        rule.ensure_one()
-        domain = (
-            "[('log_id.model_id', '=', %s), ('log_id.res_id', '=', "
-            "active_id),('field_id', 'in', %s)]"
-            % (rule.model_id.id,
-               rule.auditlog_line_access_rule_ids.mapped('field_ids').ids)
-        )
-        return  {
+    @api.multi
+    def _get_view_log_lines_action(self):
+        self.ensure_one()
+        fields_ids = self.auditlog_line_access_rule_ids.mapped('field_ids').ids
+        logs = self.env['auditlog.log'].sudo().search([
+            ('model_id', '=', self.model_id.id),
+            ('res_id', 'in', self.env.context.get('active_ids'))
+        ])
+        print('XXX', logs.ids)
+        lines = self.env['auditlog.log.line'].sudo().search([
+            ('log_id', 'in', logs.ids), ('field_id', 'in', fields_ids)
+        ])
+        print('YYY', lines.ids)
+        return {
             "name": _("View Log Lines"),
             "res_model": "auditlog.log.line",
-            "src_model": rule.model_id.model,
-            "binding_model_id": rule.model_id.id,
-            "domain": domain
+            #"src_model": self.model_id.model,
+            #"binding_model_id": self.model_id.id,
+            "view_mode": "tree,form",
+            "view_id": False,
+            "domain": [('id', 'in', lines.ids)],
+            "type": "ir.actions.act_window",
         }
 
-    def _create_server_action(self, rule):
-
-        code = """
-        if env.user.has_group("auditlog_security.group_can_view_audit_logs"):
-            rule = env['auditlog.rule'].browse(%s)
-            fields_ids = rule.auditlog_line_access_rule_ids.mapped('field_ids').ids
-            logs = env['auditlog.log'].sudo().search([('model_id', '=', rule.model_id.id), ('res_id', 'in', env.context.get('active_ids'))])
-            domain = [('log_id', 'in', logs.ids), ('field_id', 'in', fields_ids)]
-            action_values = env.ref('auditlog_security.audit_log_line_action').read()[0]
-            action = action_values
-        """ % rule.id
+    @api.multi
+    def _create_server_action(self):
+        self.ensure_one()
+        code = \
+            "rule = env['auditlog.rule'].browse(%s)\n" \
+            "action = rule._get_view_log_lines_action()" % (self.id,)
         server_action = self.env['ir.actions.server'].sudo().create({
             'name': "View Log Lines",
-            'model_id': rule.model_id.id,
+            'model_id': self.model_id.id,
             'state': "code",
-            'code': code.strip()
+            'code': code
         })
-        rule.write({
+        self.write({
             'server_action_id': server_action.id
         })
         return server_action
 
-    def _get_view_log_action(rule):
-        #small helper , not used but may be useful.
-        rule.ensure_one()
-        domain = "[('model_id', '=', %s), ('res_id', '=', active_id)]" % (
-            rule.model_id.id)
-        return {
-            'name': _("View logs"),
-            'res_model': 'auditlog.log',
-            'src_model': rule.model_id.model,
-            'binding_model_id': rule.model_id.id,
-            'domain': domain,
-         }
-
     @api.multi
     def subscribe(self):
         for rule in self:
-            server_action = self._create_server_action(rule)
+            server_action = rule._create_server_action()
             server_action.create_action()
         return super(AuditlogRule, self).subscribe()
 

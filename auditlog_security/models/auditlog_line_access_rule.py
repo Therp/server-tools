@@ -44,12 +44,12 @@ class AuditlogLineAccessRule(models.Model):
             ("name", "not in", FIELDS_BLACKLIST),
         ]
 
-    # def unlink(self):
-    #     to_delete = self.get_linked_rules()
-    #     res = super(AuditlogLineAccessRule, self).unlink()
-    #     if res:
-    #         res = res and to_delete.with_context(auditlog_write=True).unlink()
-    #     return res
+    def unlink(self):
+        to_delete = self.get_linked_rules()
+        res = super(AuditlogLineAccessRule, self).unlink()
+        if res:
+            res = res and to_delete.with_context(auditlog_write=True).unlink()
+        return res
 
     def add_default_group_if_needed(self):
         self.ensure_one()
@@ -103,11 +103,14 @@ class AuditlogLineAccessRule(models.Model):
             self.model_id.id
         )
         if self.field_ids:
-            domain_force += "('field_id', 'in',  %s)" % (self.field_ids.ids)
-        domain_force += "]"
+            domain_force = "[('field_id', 'in',  %s)]" % (self.field_ids.ids)
+            model = self.env.ref("auditlog.model_auditlog_log_line")
+        else:
+            domain_force = "[('model_id', '=', %s)]" % (self.model_id.id)
+            model = self.env.ref("auditlog.model_auditlog_log")
         return {
             "name": "auditlog_extended_%s" % self.id,
-            "model_id": self.env.ref("auditlog.model_auditlog_log_line").id,
+            "model_id": model.id,
             "groups": [(6, 0, self.group_ids.ids)],
             "perm_read": True,
             "domain_force": domain_force,
