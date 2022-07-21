@@ -51,7 +51,6 @@
         </field>
     </record>
 
-
     <record model="ir.ui.view" id="view_auditlog_log_line_tree">
         <field name="name">auditlog.log.line.tree</field>
         <field name="model">auditlog.log.line</field>
@@ -69,6 +68,13 @@
         </field>
     </record>
 
+    <record id="audit_log_line_action" model="ir.actions.act_window">
+        <field name="name">View Log Lines</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">auditlog.log.line</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
     <!-- show logs for partner out side of technical too, now that we have rules
     for all types of users, will place in "contact" -->
 
@@ -80,14 +86,17 @@
         <field name="arch" type="xml">
             <xpath expr="//group[last()]" position="after">
                 <group>
+                    <div>
+                        <p>
+                            Add fields here to make any changes to them (audit log lines)
+                            visible to members of the selected groups.
+                        </p>
+                    </div>
+                </group>
+                <group>
                     <!-- in the domain are the blacklisted fields in auditlog they
                         would be skipped anyway, so we repeat here to avoid incongruencies
                     -->
-                    <div><p>
-                        Add fields here to make any changes to them (audit log lines)
-                        visible to members of the selected groups.
-                    </p></div>
-
                     <field name="auditlog_line_access_rule_ids">
                         <tree>
                             <field name="model_id" readonly="1" invisible="1"/>
