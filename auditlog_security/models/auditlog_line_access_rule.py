@@ -30,19 +30,9 @@ class AuditlogLineAccessRule(models.Model):
         return bool(self.group_ids)
 
     def get_linked_rules(self):
-        # return with context key so that deletion will not be forbidden
         return self.env["ir.rule"].search(
             [("auditlog_line_access_rule_id", "in", self.ids)]
         )
-
-    def get_field_ids_domain(self):
-        """note this solution will work only with a hardcoded design of models,
-        because on initialization , self.model_id.id still is not defined.
-        for now, to keep generality we put the filtering in the view."""
-        return [
-            ("model_id", "=", self.env.ref("base.model_res_partner").id),
-            ("name", "not in", FIELDS_BLACKLIST),
-        ]
 
     def unlink(self):
         to_delete = self.get_linked_rules()
@@ -86,17 +76,19 @@ class AuditlogLineAccessRule(models.Model):
                     this.generate_rules()
                 else:
                     this.get_linked_rules().with_context(auditlog_write=True).unlink()
+
         return res
 
     def generate_rules(self):
         old_rule = self.env["ir.rule"].search(
             [("auditlog_line_access_rule_id", "=", self.id)], limit=1
         )
-        values = self._prepare_rule_values()
-        if old_rule:
-            old_rule.with_context(auditlog_write=True).write(values)
-        else:
-            self.with_context(auditlog_write=True).env["ir.rule"].create(values)
+        dict_values = self._prepare_rule_values()
+        for values in dict_values:
+            if old_rule:
+                old_rule.with_context(auditlog_write=True).write(values)
+            else:
+                self.with_context(auditlog_write=True).env["ir.rule"].create(values)
 
     def _prepare_rule_values(self):
         domain_force = "[" + " ('log_id.model_id' , '=', %s)," % (
@@ -108,11 +100,24 @@ class AuditlogLineAccessRule(models.Model):
         else:
             domain_force = "[('model_id', '=', %s)]" % (self.model_id.id)
             model = self.env.ref("auditlog.model_auditlog_log")
-        return {
+        auditlog_security_group = self.env.ref(
+                'auditlog_security.group_can_view_audit_logs')
+        return [
+        {
             "name": "auditlog_extended_%s" % self.id,
             "model_id": model.id,
             "groups": [(6, 0, self.group_ids.ids)],
             "perm_read": True,
             "domain_force": domain_force,
             "auditlog_line_access_rule_id": self.id,
-        }
+        }, 
+        {
+            "name": "auditlog_extended_%s" % self.id,
+            "model_id": model.id,
+            "groups": [(6, 0, [auditlog_security_group.id])],
+            "perm_read": True,
+            "domain_force": [(1, '=', 1)],
+            "auditlog_line_access_rule_id": self.id,
+        }]
+
+

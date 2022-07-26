@@ -1,7 +1,7 @@
 # Copyright 2022 Therp B.V.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import exceptions, models, fields
+from odoo import api, exceptions, models, fields
 
 
 class AuditlogLogLine(models.Model):
@@ -10,9 +10,21 @@ class AuditlogLogLine(models.Model):
 
     user_id = fields.Many2one(
         'res.users',
-        related="log_id.user_id",
+        compute="compute_user_id",
+        store=True,
+        index=True,
         string="User",
     )
-    method = fields.Char("Method", related='log_id.method')
+    method = fields.Char("Method", compute='compute_method', store=True, index=True)
+
+    @api.depends('log_id.method')
+    def compute_method(self):
+        for this in self:
+            this.method=this.log_id.method
+
+    @api.depends('log_id.user_id')
+    def compute_user_id(self):
+        for this in self:
+            this.user_id=this.log_id.user_id
 
     
