@@ -3,7 +3,6 @@
 
 from odoo import exceptions, models, fields, api, modules, _
 from odoo.addons.auditlog.models.rule import FIELDS_BLACKLIST
-from odoo import SUPERUSER_ID
 
 
 class AuditlogRule(models.Model):
@@ -13,12 +12,6 @@ class AuditlogRule(models.Model):
         "auditlog.line.access.rule", "auditlog_rule_id", ondelete="cascade"
     )
     server_action_id = fields.Many2one('ir.actions.server', "Server Action")
-
-
-    def sudo(self, user=SUPERUSER_ID):
-       return super(
-            AuditlogRule, self.with_context(real_user=self.env.context.get('uid'))
-            ).sudo(user=user)
 
     @api.onchange("model_id")
     def onchange_model_id(self):
@@ -86,23 +79,4 @@ class AuditlogRule(models.Model):
         for rule in self:
             rule.server_action_id.unlink()
         return super(AuditlogRule, self).unsubscribe()
-
-    def _prepare_log_line_vals_on_read(self, log, field, read_values):
-        res = super(AuditlogRule, self)._prepare_log_line_vals_on_read(
-            log, field, read_values)
-        res.update({'user_id': self.env.context.get('real_user')})
-        return res
-
-    def _prepare_log_line_vals_on_write(
-            self, log, field, old_values, new_values):
-        res = super(AuditlogRule, self)._prepare_log_line_vals_on_write(
-            log, field, old_values, new_values)
-        res.update({'user_id': self.env.context.get('real_user')})
-        return res
-
-    def _prepare_log_line_vals_on_create(self, log, field, new_values):
-        res = super(AuditlogRule, self)._prepare_log_line_vals_on_create(
-            log, field, new_values)
-        res.update({'user_id': self.env.context.get('real_user')})
-        return res
 

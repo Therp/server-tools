@@ -10,6 +10,7 @@ class AuditlogLogLine(models.Model):
 
     user_id = fields.Many2one(
         'res.users',
+        related="log_id.user_id",
         string="User",
     )
     method = fields.Char("Method", related='log_id.method')
