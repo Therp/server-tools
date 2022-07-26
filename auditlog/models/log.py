@@ -31,16 +31,16 @@ class AuditlogLog(models.Model):
          ],
         string="Type")
 
-    @api.model_create_multi
-    def create(self, vals_list):
+    @api.model
+    def create(self, values):
         """ Insert model_name and model_model field values upon creation. """
-        for vals in vals_list:
-            if not vals.get("model_id"):
-                raise UserError(_("No model defined to create log."))
-            model = self.env["ir.model"].browse(vals["model_id"])
-            vals.update({"model_name": model.name, "model_model": model.model})
-        return super().create(vals_list)
+        if not values.get("model_id"):
+            raise UserError(_("No model defined to create log."))
+        model = self.env["ir.model"].browse(values["model_id"])
+        values.update({"model_name": model.name, "model_model": model.model})
+        return super(AuditlogLog, self).create(values)
 
+    @api.multi
     def write(self, vals):
         """Update model_name and model_model field values to reflect model_id
         changes."""
@@ -49,7 +49,7 @@ class AuditlogLog(models.Model):
                 raise UserError(_("The field 'model_id' cannot be empty."))
             model = self.env["ir.model"].browse(vals["model_id"])
             vals.update({"model_name": model.name, "model_model": model.model})
-        return super().write(vals)
+        return super(AuditlogLog, self).write(vals)
 
 
 class AuditlogLogLine(models.Model):
@@ -69,19 +69,19 @@ class AuditlogLogLine(models.Model):
     field_description = fields.Char(
         "Description", related='field_id.field_description')
 
-    @api.model_create_multi
-    def create(self, vals_list):
+    @api.model
+    def create(self, values):
         """Ensure field_id is not empty on creation and store field_name and
         field_description."""
-        for vals in vals_list:
-            if not vals.get("field_id"):
-                raise UserError(_("No field defined to create line."))
-            field = self.env["ir.model.fields"].browse(vals["field_id"])
-            vals.update(
-                {"field_name": field.name, "field_description": field.field_description}
-            )
-        return super().create(vals_list)
-
+        if not values.get("field_id"):
+            raise UserError(_("No field defined to create line."))
+        field = self.env["ir.model.fields"].browse(values["field_id"])
+        values.update(
+            {"field_name": field.name, "field_description": field.field_description}
+        )
+        return super(AuditlogLogLine, self).create(values)
+   
+    @api.multi
     def write(self, vals):
         """Ensure field_id is set during write and update field_name and
         field_description values."""
@@ -92,4 +92,4 @@ class AuditlogLogLine(models.Model):
             vals.update(
                 {"field_name": field.name, "field_description": field.field_description}
             )
-        return super().write(vals)
+        return super(AuditlogLogLine, self).write(vals)
