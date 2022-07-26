@@ -18,25 +18,15 @@ class AuditlogRule(models.Model):
         # if model changes we must wipe out all field ids
         self.auditlog_line_access_rule_ids.unlink()
 
-    @api.multi
-    def unlink(self):
-        lines = self.mapped("auditlog_line_access_rule_ids")
-        res = super(AuditlogRule, self).unlink()
-        if res:
-            lines.unlink()
-        return res
-
-    @api.multi
-    def _get_view_log_lines_action(self):
-        self.ensure_one()
-        fields_ids = self.auditlog_line_access_rule_ids.mapped('field_ids').ids
+    @api.model
+    def _get_view_log_lines_action(self, model):
         logs = self.env['auditlog.log'].sudo().search([
-            ('model_id', '=', self.model_id.id),
+            ('model_id', '=', model.id),
             ('res_id', 'in', self.env.context.get('active_ids'))
         ])
         print('XXX', logs.ids)
         lines = self.env['auditlog.log.line'].sudo().search([
-            ('log_id', 'in', logs.ids), ('field_id', 'in', fields_ids)
+            ('log_id', 'in', logs.ids) 
         ])
         print('YYY', lines.ids)
         return {
@@ -55,7 +45,7 @@ class AuditlogRule(models.Model):
         self.ensure_one()
         code = \
             "rule = env['auditlog.rule'].browse(%s)\n" \
-            "action = rule._get_view_log_lines_action()" % (self.id,)
+            "action = rule._get_view_log_lines_action()" % (self.model_id,)
         server_action = self.env['ir.actions.server'].sudo().create({
             'name': "View Log Lines",
             'model_id': self.model_id.id,
