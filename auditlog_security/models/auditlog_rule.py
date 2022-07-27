@@ -24,7 +24,7 @@ class AuditlogRule(models.Model):
     def _get_view_log_lines_action(self, model_id):
         lines = self.env['auditlog.log.line'].search([
             ('model_id', '=', model_id),
-            ('log_id.res_id', 'in', self.env.context.get('active_ids'))
+            ('res_id', 'in', self.env.context.get('active_ids'))
             ])
         return {
                 "name": _("View Log Lines"),

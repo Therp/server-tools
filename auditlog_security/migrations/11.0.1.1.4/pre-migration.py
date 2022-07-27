@@ -16,6 +16,7 @@ def migrate(cr, version):
     ADD COLUMN IF NOT EXISTS method VARCHAR,
     ADD COLUMN IF NOT EXISTS user_id INTEGER,
     ADD COLUMN IF NOT EXISTS model_id INTEGER;
+    ADD COLUMN IF NOT EXISTS res_id INTEGER;
 
     """
     )
@@ -42,6 +43,8 @@ def migrate(cr, version):
         auditlog_log_line_user_id_index ON auditlog_log_line (user_id);
         CREATE INDEX IF NOT EXISTS
         auditlog_log_line_model_id_index ON auditlog_log_line (model_id);
+        CREATE INDEX IF NOT EXISTS
+        auditlog_log_line_res_id_index ON auditlog_log_line (res_id);
     """
     )
     logger.info(
@@ -50,7 +53,7 @@ def migrate(cr, version):
     cr.execute(
         """
     UPDATE auditlog_log_line aline
-    SET method = al.method, user_id = al.user_id , model_id = al.model_id
+    SET method = al.method, user_id = al.user_id , model_id = al.model_id, res_id = al.res_id
     FROM auditlog_log al
     WHERE al.id = aline.log_id; 
     """

@@ -21,6 +21,10 @@ class AuditlogLogLine(models.Model):
         compute='compute_model_id', 
         store=True, 
         index=True)
+    res_id = fields.Integer(
+        compute='compute_res_id', 
+        store=True, 
+        index=True)
 
 
     @api.depends('log_id.method')
@@ -38,3 +42,7 @@ class AuditlogLogLine(models.Model):
         for this in self:
             this.model_id=this.log_id.model_id
     
+    @api.depends('log_id.res_id')
+    def compute_res_id(self):
+        for this in self:
+            this.res_id=this.log_id.res_id
