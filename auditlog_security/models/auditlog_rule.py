@@ -11,9 +11,7 @@ class AuditlogRule(models.Model):
     auditlog_line_access_rule_ids = fields.One2many(
         "auditlog.line.access.rule", "auditlog_rule_id", ondelete="cascade"
     )
-    server_action_id = fields.Many2one('ir.actions.server', "Server Action",
-        ondelete="cascade"
-    )
+    server_action_id = fields.Many2one('ir.actions.server', "Server Action",)
 
     @api.onchange("model_id")
     def onchange_model_id(self):

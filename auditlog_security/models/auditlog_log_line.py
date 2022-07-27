@@ -26,7 +26,6 @@ class AuditlogLogLine(models.Model):
         store=True, 
         index=True)
 
-
     @api.depends('log_id.method')
     def compute_method(self):
         for this in self:
