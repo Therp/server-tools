@@ -48,7 +48,7 @@ def migrate(cr, version):
     """
     )
     logger.info(
-        "Preemtive fill of auditlog_log_line columns: 'method', user_id"
+        "Preemtive fill of auditlog_log_line columns: 'method', user_id, res_id, model_id"
     )
     cr.execute(
         """
