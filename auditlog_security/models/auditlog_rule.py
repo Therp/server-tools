@@ -56,7 +56,13 @@ class AuditlogRule(models.Model):
         for rule in self:
             server_action = rule._create_server_action()
             server_action.create_action()
-        return super(AuditlogRule, self).subscribe()
+        res = super(AuditlogRule, self).subscribe()
+        # rule now will have "View Log" Action, make that visible only for admin
+        if res:
+            self.action_id.write({
+                'groups_id': [(6, 0, [self.env.ref('base.group_system').id])]
+            }) 
+        return res
 
     @api.multi
     def unsubscribe(self):
