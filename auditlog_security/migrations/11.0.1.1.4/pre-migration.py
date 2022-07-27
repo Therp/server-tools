@@ -15,7 +15,7 @@ def migrate(cr, version):
     ALTER TABLE auditlog_log_line
     ADD COLUMN IF NOT EXISTS method VARCHAR,
     ADD COLUMN IF NOT EXISTS user_id INTEGER,
-    ADD COLUMN IF NOT EXISTS model_id INTEGER;
+    ADD COLUMN IF NOT EXISTS model_id INTEGER,
     ADD COLUMN IF NOT EXISTS res_id INTEGER;
 
     """
