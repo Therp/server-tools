@@ -43,9 +43,8 @@ class AuditlogRule(models.Model):
     @api.multi
     def _create_server_action(self):
         self.ensure_one()
-        code = \
-            "action = env['auditlog.rule']._get_view_log_lines_action(%s)" % (
-                    self.model_id.id,)
+        code = "action = env['auditlog.rule']._get_view_log_lines_action(%s)" % (
+            self.model_id.id,)
         server_action = self.env['ir.actions.server'].sudo().create({
             'name': "View Log Lines",
             'model_id': self.model_id.id,
