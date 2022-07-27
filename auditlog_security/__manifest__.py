@@ -3,7 +3,7 @@
 
 {
     "name": "Audit Log User Permissions",
-    "version": "11.0.1.1.2",
+    "version": "11.0.1.1.3",
     "author": "Therp B.V.,Odoo Community Association (OCA)",
     "license": "AGPL-3",
     "website": "https://github.com/OCA/server-tools/",
