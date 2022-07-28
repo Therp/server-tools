@@ -1,7 +1,7 @@
 # Copyright 2021 Therp B.V.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import exceptions, models, fields, api, modules, _
+from odoo import exceptions, models, fields, api, modules, _, tools
 from odoo.addons.auditlog.models.rule import FIELDS_BLACKLIST
 
 
@@ -13,17 +13,35 @@ class AuditlogRule(models.Model):
     )
     server_action_id = fields.Many2one('ir.actions.server', "Server Action",)
 
+    @api.multi
+    def write(self, values):
+        if "auditlog_line_access_rule_ids" in values.keys():
+            #clear cache for all ormcache methods.
+            self.clear_caches()
+        return super(AuditlogRule, self).write(values)
+
     @api.onchange("model_id")
     def onchange_model_id(self):
         # if model changes we must wipe out all field ids
         self.auditlog_line_access_rule_ids.unlink()
 
-    @api.model
-    def _get_view_log_lines_action(self, model_id):
-        lines = self.env['auditlog.log.line'].search([
-            ('model_id', '=', model_id),
-            ('res_id', 'in', self.env.context.get('active_ids'))
-            ])
+    @tools.ormcache('rule')
+    def _get_fields_of_rule(rule):
+        if rule.auditlog_line_access_rule_ids:
+            return rule.mapped(
+                    'auditlog_line_access_rule_ids.field_ids').ids
+        return []
+
+    @api.multi
+    def _get_view_log_lines_action(self):
+        domain = [
+            ('model_id', '=', self.model_id.id),
+            ('res_id', 'in', self.env.context.get('active_ids')),
+        ]
+        field_ids =  self._get_fields_of_rule() 
+        if field_ids:
+            domain.append(('field_id', 'in', field_ids))
+        lines = self.env['auditlog.log.line'].search(domain)
         return {
                 "name": _("View Log Lines"),
                 "res_model": "auditlog.log.line",
@@ -38,8 +56,9 @@ class AuditlogRule(models.Model):
     @api.multi
     def _create_server_action(self):
         self.ensure_one()
-        code = "action = env['auditlog.rule']._get_view_log_lines_action(%s)" % (
-            self.model_id.id,)
+        code = \
+            "rule = env['auditlog.rule'].browse(%s)\n" \
+            "action = rule._get_view_log_lines_action()" % (self.id)
         server_action = self.env['ir.actions.server'].sudo().create({
             'name': "View Log Lines",
             'model_id': self.model_id.id,
