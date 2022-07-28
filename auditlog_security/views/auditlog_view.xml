@@ -94,6 +94,7 @@
                     </div>
                 </group>
                 <group>
+                    <field name="log_selected_fields_only"/>
                     <!-- in the domain are the blacklisted fields in auditlog they
                         would be skipped anyway, so we repeat here to avoid incongruencies
                     -->
