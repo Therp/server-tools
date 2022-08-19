@@ -22,13 +22,31 @@ class AuditlogRule(models.Model):
             raise ValidationError("A rule for this model already exists")
 
     @api.model
+    @tools.ormcache('model_name')
+    def _get_field_names_of_rule(self, model_name):
+        """ Memory-cached list of fields per rule """
+        rule = self.env['auditlog.rule'].sudo().search(
+            [('model_id.model', '=', model_name)], limit=1)
+        if rule.auditlog_line_access_rule_ids:
+            return rule.mapped(
+                'auditlog_line_access_rule_ids.field_ids.name')
+        return []
+
+    @api.model
+    @tools.ormcache('model_name')
+    def _get_log_selected_fields_only(self, model_name):
+        """ Memory-cached translation of model to rule """
+        rule = self.env['auditlog.rule'].sudo().search(
+            [('model_id.model', '=', model_name)], limit=1)
+        return rule.log_selected_fields_only
+
+    @api.model
     def get_auditlog_fields(self, model):
         res = super(AuditlogRule, self).get_auditlog_fields(model)
-        unique_rule = self._get_rule_for_model(model)
-        if unique_rule.log_selected_fields_only:
-            traced_fields = unique_rule._get_fields_of_rule()
+        if self._get_log_selected_fields_only(model._name):
+            selected_field_names = self._get_field_names_of_rule(model._name)
             # we re-use the checks on non-stored fields from super.
-            return [x for x in traced_fields if x in res]
+            res = [x for x in selected_field_names if x in res]
         return res
 
     @api.multi
@@ -47,46 +65,31 @@ class AuditlogRule(models.Model):
         # if model changes we must wipe out all field ids
         self.auditlog_line_access_rule_ids.unlink()
 
-    @tools.ormcache('model')
-    def _get_rule_for_model(self, model):
-        unique_rule =  self.env['auditlog.rule'].sudo().search(
-            [('model_id.model', '=', model._name)])
-        return unique_rule.sudo()
-
-    @tools.ormcache('rule')
-    def _get_fields_of_rule(rule):
-        if rule.auditlog_line_access_rule_ids:
-            return rule.mapped(
-                    'auditlog_line_access_rule_ids.field_ids').ids
-        return []
-
     @api.model
-    def _get_view_log_lines_action(self, rule_id=None):
-        rule = self.sudo().browse(rule_id)
+    def _get_view_log_lines_action(self):
+        assert(self.env.context.get('active_model'))
+        assert(self.env.context.get('active_ids'))
+        model = self.env['ir.model'].sudo().search([
+            ('model', '=', self.env.context.get('active_model'))
+        ])
         domain = [
-            ('model_id', '=', rule.model_id.id),
+            ('model_id', '=', model.id),
             ('res_id', 'in', self.env.context.get('active_ids')),
         ]
-        field_ids =  rule._get_fields_of_rule() 
-        if field_ids:
-            domain.append(('field_id', 'in', field_ids))
-        lines = self.env['auditlog.log.line'].search(domain)
         return {
-                "name": _("View Log Lines"),
-                "res_model": "auditlog.log.line",
-                "view_mode": "tree,form",
-                #"src_model": self.model_id.model,
-                #"binding_model_id": self.model_id.id,
-                "view_id": False,
-                "domain": [('id', 'in', lines.ids)],
-                "type": "ir.actions.act_window",
-                }
+            "name": _("View Log Lines"),
+            "res_model": "auditlog.log.line",
+            "view_mode": "tree,form",
+            "view_id": False,
+            "domain": domain,
+            "type": "ir.actions.act_window",
+        }
 
     @api.multi
     def _create_server_action(self):
         self.ensure_one()
         code = \
-            "action =env['auditlog.rule']._get_view_log_lines_action(rule_id=%s)" % (self.id)
+            "action = env['auditlog.rule']._get_view_log_lines_action()"
         server_action = self.env['ir.actions.server'].sudo().create({
             'name': "View Log Lines",
             'model_id': self.model_id.id,
