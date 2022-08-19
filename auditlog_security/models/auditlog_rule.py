@@ -52,8 +52,9 @@ class AuditlogRule(models.Model):
     @api.multi
     def write(self, values):
         cache_invalidating_fields = [
-                "auditlog_line_access_rule_ids" ,
-                "log_selected_fields_only",
+            "state",
+            "auditlog_line_access_rule_ids",
+            "log_selected_fields_only",
         ]
         if any([field in values.keys() for field in cache_invalidating_fields]):
             # clear cache for all ormcache methods.
