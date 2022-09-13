@@ -18,6 +18,7 @@
         "security/res_groups.xml",
         "views/auditlog_view.xml",
         "security/ir.model.access.csv",
+        "security/ir_rule.xml",
     ],
     "application": True,
     "installable": True,

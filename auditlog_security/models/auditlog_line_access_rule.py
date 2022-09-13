@@ -24,7 +24,6 @@ class AuditlogLineAccessRule(models.Model):
     )
     state = fields.Selection(related="auditlog_rule_id.state", readonly=True)
 
-
     def needs_rule(self):
         self.ensure_one()
         return bool(self.group_ids)
@@ -38,7 +37,7 @@ class AuditlogLineAccessRule(models.Model):
         to_delete = self.get_linked_rules()
         res = super(AuditlogLineAccessRule, self).unlink()
         if res:
-            res = res and to_delete.with_context(auditlog_write=True).unlink()
+            res = res and to_delete.unlink()
         return res
 
     def add_default_group_if_needed(self):
@@ -54,8 +53,7 @@ class AuditlogLineAccessRule(models.Model):
     def create(self, vals):
         res = super(AuditlogLineAccessRule, self).create(vals)
         res.add_default_group_if_needed()
-        if res.needs_rule():
-            res.generate_rules()
+        res.regenerate_rules()
         return res
 
     @api.multi
@@ -72,25 +70,25 @@ class AuditlogLineAccessRule(models.Model):
                 )
                 or added
             ):
-                if this.needs_rule():
-                    this.generate_rules()
-                else:
-                    this.get_linked_rules().with_context(auditlog_write=True).unlink()
+                this.regenerate_rules()
 
         return res
 
-    def generate_rules(self):
-        old_rule = self.env["ir.rule"].search(
-            [("auditlog_line_access_rule_id", "=", self.id)], limit=1
-        )
-        dict_values = self._prepare_rule_values()
-        for values in dict_values:
-            if old_rule:
-                old_rule.with_context(auditlog_write=True).write(values)
-            else:
-                self.with_context(auditlog_write=True).env["ir.rule"].create(values)
+    def remove_rules(self):
+        for this in self:
+            this.get_linked_rules().unlink()
+
+    def regenerate_rules(self):
+        for this in self:
+            this.remove_rules()
+            dict_values = this._prepare_rule_values()
+            for values in dict_values:
+                self.env["ir.rule"].create(values)
 
     def _prepare_rule_values(self):
+        self.ensure_one()
+        if not self.needs_rule():
+            return []
         domain_force = "[" + " ('log_id.model_id' , '=', %s)," % (
             self.model_id.id
         )

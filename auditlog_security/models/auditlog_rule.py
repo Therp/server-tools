@@ -108,6 +108,8 @@ class AuditlogRule(models.Model):
             server_action = rule._create_server_action()
             server_action.create_action()
         res = super(AuditlogRule, self).subscribe()
+        for rule in self:
+            rule.auditlog_line_access_rule_ids.regenerate_rules()
         # rule now will have "View Log" Action, make that visible only for admin
         if res:
             self.action_id.write({
@@ -117,6 +119,8 @@ class AuditlogRule(models.Model):
 
     @api.multi
     def unsubscribe(self):
+        for rule in self:
+            rule.auditlog_line_access_rule_ids.remove_rules()
         for rule in self:
             rule.server_action_id.unlink()
         return super(AuditlogRule, self).unsubscribe()
