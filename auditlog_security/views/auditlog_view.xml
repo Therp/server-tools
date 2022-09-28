@@ -55,16 +55,14 @@
         <field name="name">auditlog.log.line.tree</field>
         <field name="model">auditlog.log.line</field>
         <field name="arch" type="xml">
-                <tree delete="0">
-                    <field name="create_date"/>
-                    <field name="user_id"/>
-                    <field name="method"/>
-                    <field name="field_name"/>
-                    <!--<field name="old_value"/>-->
-                    <field name="old_value_text"/>
-                    <!--<field name="new_value"/>-->
-                    <field name="new_value_text"/>
-                </tree>
+            <tree delete="0">
+                <field name="create_date"/>
+                <field name="field_name" string="Changed" />
+                <field name="old_value_text"/>
+                <field name="new_value_text"/>
+                <field name="user_id"/>
+                <field name="method" string="Type of operation"/>
+            </tree>
         </field>
     </record>
 
