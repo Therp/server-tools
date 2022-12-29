@@ -1,6 +1,7 @@
 # Copyright 2015 ABF OSIELL <https://osiell.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import models, fields
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class AuditlogLog(models.Model):
@@ -10,7 +11,13 @@ class AuditlogLog(models.Model):
 
     name = fields.Char("Resource Name", size=64)
     model_id = fields.Many2one(
-        'ir.model', string="Model")
+        "ir.model", string="Model", index=True,
+        required=True
+    )
+    model_name = fields.Char(readonly=True,  related='model_id.name' )
+    model_model = fields.Char(string="Technical Model Name", readonly=True,
+            related="model_id.model"
+    )
     res_id = fields.Integer("Resource ID")
     user_id = fields.Many2one(
         'res.users', string="User")
@@ -33,7 +40,9 @@ class AuditlogLogLine(models.Model):
     _description = "Auditlog - Log details (fields updated)"
 
     field_id = fields.Many2one(
-        'ir.model.fields', ondelete='cascade', string="Field", required=True)
+        "ir.model.fields", ondelete="set null", string="Field", index=True,
+        required=True
+    )
     log_id = fields.Many2one(
         'auditlog.log', string="Log", ondelete='cascade', index=True)
     old_value = fields.Text("Old Value")
