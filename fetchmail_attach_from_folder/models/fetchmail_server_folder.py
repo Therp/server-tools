@@ -238,8 +238,16 @@ class FetchmailServerFolder(models.Model):
         result, msgdata = connection.fetch(msgid, "(RFC822)")
         if result != "OK":
             raise UserError(
-                _("Could not fetch %(msgid)s in folder %(folder)s on server %(server)s")
-                % {"msgid": msgid, "folder": self.path, "server": self.server_id.name}
+                _(
+                    "Could not fetch %(msgid)s in folder %(folder)s"
+                    " on server %(server)s, %(result)s"
+                )
+                % {
+                    "msgid": msgid,
+                    "folder": self.path,
+                    "server": self.server_id.name,
+                    "result": str(result),
+                }
             )
         message_org = msgdata[0][1]  # rfc822 message source
         return message_org
