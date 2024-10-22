@@ -3,7 +3,7 @@
 
 {
     "name": "Base External System - oauth systems",
-    "summary": "Connect to external systems trough oauth authentication.",
+    "summary": "DEPRECATED, now on server-backend repo!",
     "version": "16.0.1.0.0",
     "category": "Base",
     "website": "https://github.com/OCA/server-tools",

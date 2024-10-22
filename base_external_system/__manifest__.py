@@ -3,7 +3,7 @@
 
 {
     "name": "Base External System",
-    "summary": "Data models allowing for connection to external systems.",
+    "summary": "DEPRECATED, now on server-backend repo!",
     "version": "16.0.1.0.0",
     "category": "Base",
     "website": "https://github.com/OCA/server-tools",

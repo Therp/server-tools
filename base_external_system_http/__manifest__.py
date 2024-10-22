@@ -8,7 +8,7 @@
     "license": "AGPL-3",
     "category": "Base",
     "website": "https://github.com/OCA/server-tools",
-    "summary": "HTTP Connector for External Systems",
+    "summary": "DEPRECATED, now on server-backend repo!",
     "depends": ["base_external_system"],
     "data": [
         "demo/external_system_demo.xml",
