@@ -21,6 +21,8 @@ class AuditlogLogLine(models.Model):
     )
     res_id = fields.Integer(compute="_compute_res_id", store=True, index=True)
 
+    rule_id = fields.Many2one(related="log_id.rule_id")
+
     @api.depends("log_id.method")
     def _compute_method(self):
         for this in self:
