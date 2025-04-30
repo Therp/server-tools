@@ -15,4 +15,22 @@
         <field name="perm_unlink" eval="False" />
     </record>
 
+    <record id="auditlog_log_rule" model="ir.rule">
+        <field name="name">Access to auditlog.log</field>
+        <field name="model_id" ref="auditlog.model_auditlog_log" />
+        <field
+            name="domain_force"
+        >[('allowed_group_ids', 'in', user.groups_id.ids)]</field>
+        <field name="perm_read" eval="False" />
+    </record>
+
+    <record id="auditlog_log_line_rule" model="ir.rule">
+        <field name="name">Access to auditlog.log.line</field>
+        <field name="model_id" ref="auditlog.model_auditlog_log_line" />
+        <field
+            name="domain_force"
+        >[('allowed_group_ids', 'in', user.groups_id.ids)]</field>
+        <field name="perm_read" eval="False" />
+    </record>
+
 </odoo>

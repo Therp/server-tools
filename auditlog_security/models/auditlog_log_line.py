@@ -20,6 +20,9 @@ class AuditlogLogLine(models.Model):
         "ir.model", compute="_compute_model_id", store=True, index=True
     )
     res_id = fields.Integer(compute="_compute_res_id", store=True, index=True)
+    allowed_group_ids = fields.Many2many(
+        "res.groups", compute="_compute_allowed_group_ids", store=True
+    )
 
     @api.depends("log_id.method")
     def _compute_method(self):
@@ -40,3 +43,25 @@ class AuditlogLogLine(models.Model):
     def _compute_res_id(self):
         for this in self:
             this.res_id = this.log_id.res_id
+
+    @api.depends(
+        "field_id",
+        "log_id.rule_id",
+        "log_id.rule_id.auditlog_line_access_rule_ids.group_ids",
+        "log_id.rule_id.auditlog_line_access_rule_ids.field_ids",
+    )
+    def _compute_allowed_group_ids(self):
+        for line in self:
+            # Do not give a value to sql model
+            if line._name == "auditlog.log.line.view":
+                continue
+            line.allowed_group_ids = (
+                self.env["auditlog.line.access.rule"]
+                .search(
+                    [
+                        ("auditlog_rule_id", "=", line.log_id.rule_id.id),
+                        ("field_ids", "in", line.field_id.ids),
+                    ]
+                )
+                .group_ids
+            )
