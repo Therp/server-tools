@@ -5,7 +5,7 @@ class AuditlogLogLineView(models.Model):
     _name = "auditlog.log.line.view"
     _inherit = "auditlog.log.line"
     _description = "Auditlog - Log details (fields updated)"
-    _auto = False
+    #_auto = False
     _log_access = True
 
     name = fields.Char()
