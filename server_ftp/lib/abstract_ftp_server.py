@@ -13,21 +13,21 @@ class AbstractFTPServer(ABC):
 
     @abstractmethod
     def connect(self, host, port, user, password):
-        """ Connect to object """
+        """Connect to object"""
         raise NotImplementedError
 
     @abstractmethod
     def close(self):
-        """ Close connection """
+        """Close connection"""
         raise NotImplementedError
 
     @abstractmethod
     def putfo(self, file_like, name):
         """Transfer file-like object to server
 
-           name: filename+extension for file at server
-           file_like: byte object, content of which
-           will appear in server as name
+        name: filename+extension for file at server
+        file_like: byte object, content of which
+        will appear in server as name
         """
         raise NotImplementedError
 
@@ -35,8 +35,8 @@ class AbstractFTPServer(ABC):
     def put(self, filepath, name):
         """Transfer file object to server
 
-           name: filename+extension for file at server
-           filepath: path + the actual file you are putting
+        name: filename+extension for file at server
+        filepath: path + the actual file you are putting
         """
         raise NotImplementedError
 
@@ -57,15 +57,15 @@ class AbstractFTPServer(ABC):
 
     @abstractmethod
     def listdir(self, path=""):
-        """ List in current directory """
+        """List in current directory"""
         raise NotImplementedError
 
     @abstractmethod
     def cd(self, path):
-        """ Change directory """
+        """Change directory"""
         raise NotImplementedError
 
     @abstractmethod
     def exists(self, file, path=""):
-        """ See if file exists in path """
+        """See if file exists in path"""
         raise NotImplementedError

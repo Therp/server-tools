@@ -61,8 +61,7 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Security">
-                        </page>
+                        <page string="Security" />
                     </notebook>
                 </sheet>
             </form>

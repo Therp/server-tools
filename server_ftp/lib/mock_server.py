@@ -21,22 +21,22 @@ class MockServer(AbstractFTPServer):
         self.current_directory = None
 
     def connect(self, host, port, user, password):
-        """ Connect to object """
+        """Connect to object"""
         self.filestore = {"/": {}}  # One "directory" with no files.
         self.current_directory = "/"
         return self
 
     def close(self):
-        """ Close connection """
+        """Close connection"""
         self.filestore = None
         self.current_directory = None
 
     def putfo(self, file_like, name):
         """Transfer file-like object to server
 
-           name: filename+extension for file at server
-           file_like: byte object, content of which
-           will appear in server as name
+        name: filename+extension for file at server
+        file_like: byte object, content of which
+        will appear in server as name
         """
         directory = self._get_checked_directory()
         file_like.seek(0)
@@ -45,9 +45,9 @@ class MockServer(AbstractFTPServer):
     def put(self, filepath, name):
         """Transfer file object to server
 
-           name: filename+extension for file at server
-           filepath: filepath_to_file, content of which
-           will appear in server as name
+        name: filename+extension for file at server
+        filepath: filepath_to_file, content of which
+        will appear in server as name
         """
         localfile = open(filepath, "rb")
         self.putfo(localfile, name)
@@ -69,7 +69,7 @@ class MockServer(AbstractFTPServer):
         del directory[file]
 
     def listdir(self, path=""):
-        """ List directory in path """
+        """List directory in path"""
         directory = self._get_checked_directory(path)
         return list(directory.keys())  # list: otherwise returns dict_keys object.
 
@@ -80,7 +80,7 @@ class MockServer(AbstractFTPServer):
         self.current_directory = path
 
     def exists(self, file, path="."):
-        """ See if file exists in path """
+        """See if file exists in path"""
         directory = self._get_checked_directory(path)
         return file in directory
 
