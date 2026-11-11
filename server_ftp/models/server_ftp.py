@@ -5,8 +5,8 @@ from odoo.exceptions import UserError
 
 from ..lib.ftp_server import FTPServer
 from ..lib.ftp_tls_server import FTPTLSServer
-from ..lib.sftp_server import SFTPServer
 from ..lib.mock_server import MockServer
+from ..lib.sftp_server import SFTPServer
 
 
 class ServerFTP(models.Model):
@@ -44,10 +44,10 @@ class ServerFTP(models.Model):
         if any([i in vals for i in fields]):
             # Reset state if someone edits a connection field
             vals["state"] = "draft"
-        return super(ServerFTP, self).write(vals)
+        return super().write(vals)
 
     def action_test_connection(self):
-        """ Test the outcome of connect() """
+        """Test the outcome of connect()"""
         if not all([self.host, self.port, self.user, self.password]):
             raise UserError(_("Make sure that required info is set"))
         try:
@@ -72,7 +72,7 @@ class ServerFTP(models.Model):
             self.state = "done"
 
     def connect(self):
-        """ Return appropriate object based on server_type """
+        """Return appropriate object based on server_type"""
         self.ensure_one()
         server = self._make_server_instance()
         server.connect(self.host, self.port, self.user, self.password)

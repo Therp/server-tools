@@ -12,7 +12,7 @@ class ServerFTPFolder(models.Model):
     server_id = fields.Many2one(comodel_name="server.ftp")
 
     def connect(self):
-        """ Return appropriate FTP class, cd into path"""
+        """Return appropriate FTP class, cd into path"""
         server = self.server_id.connect()
         server.cd(self.path)
         return server

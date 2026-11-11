@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <record id="view_server_ftp_tree" model="ir.ui.view">
         <field name="name">server.ftp.list</field>
@@ -61,8 +61,7 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Security">
-                        </page>
+                        <page string="Security" />
                     </notebook>
                 </sheet>
             </form>

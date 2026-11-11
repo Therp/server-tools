@@ -7,7 +7,7 @@ from .abstract_ftp_server import AbstractFTPServer
 
 class SFTPServer(AbstractFTPServer):
     def connect(self, host, port, user, password):
-        """ Connect to object """
+        """Connect to object"""
         # TODO: make this secure
         cnopts = pysftp.CnOpts()
         cnopts.hostkeys = None
@@ -21,25 +21,25 @@ class SFTPServer(AbstractFTPServer):
         return self
 
     def close(self):
-        """ Close connection """
+        """Close connection"""
         self.server.close()
         self.server = None
 
     def putfo(self, file_like, name):
         """Transfer file-like object to server
 
-           name: filename+extension for file at server
-           file_like: byte object, content of which
-           will appear in server as name
+        name: filename+extension for file at server
+        file_like: byte object, content of which
+        will appear in server as name
         """
         self.server.putfo(file_like, name)
 
     def put(self, filepath, name):
         """Transfer file object to server
 
-           name: filename+extension for file at server
-           filepath: filepath_to_file, content of which
-           will appear in server as name
+        name: filename+extension for file at server
+        filepath: filepath_to_file, content of which
+        will appear in server as name
         """
         self.server.put(filepath, name)
 
@@ -57,13 +57,13 @@ class SFTPServer(AbstractFTPServer):
         self.server.remove(file)
 
     def listdir(self, path=""):
-        """ List directory in path """
+        """List directory in path"""
         return self.server.listdir(path)
 
     def cd(self, path):
-        """ Change directory """
+        """Change directory"""
         self.server.chdir(path)
 
     def exists(self, file, path=""):
-        """ See if file exists in path """
+        """See if file exists in path"""
         return self.server.exists(path + file)

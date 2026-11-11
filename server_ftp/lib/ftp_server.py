@@ -7,7 +7,7 @@ from .abstract_ftp_server import AbstractFTPServer
 
 class FTPServer(AbstractFTPServer):
     def connect(self, host, port, user, password):
-        """ Connect to server """
+        """Connect to server"""
         self.server = FTP()
         # Init step by step
         self.server.connect(host, port)
@@ -15,30 +15,30 @@ class FTPServer(AbstractFTPServer):
         return self
 
     def close(self):
-        """ Close connection """
+        """Close connection"""
         self.server.quit()
         self.server = None
 
     def putfo(self, file_like, name):
         """Transfer file-like object to server
 
-           name: filename+extension for file at server
-           file_like: byte object, content of which
-           will appear in server as name
+        name: filename+extension for file at server
+        file_like: byte object, content of which
+        will appear in server as name
 
-           Example
+        Example
 
-           bytes_ = b'abc def'
-           name = "abc.txt"
-           self.putfo(io.BytesIO(bytes_), name)
+        bytes_ = b'abc def'
+        name = "abc.txt"
+        self.putfo(io.BytesIO(bytes_), name)
         """
         self.server.storbinary("STOR " + name, file_like)
 
     def put(self, filepath, name):
         """Transfer file object to server
 
-           name: filename+extension for file at server
-           filepath: path + the actual file you are putting
+        name: filename+extension for file at server
+        filepath: path + the actual file you are putting
         """
         with open(filepath, "rb") as file:
             self.server.storbinary("STOR " + name, file)
@@ -46,8 +46,8 @@ class FTPServer(AbstractFTPServer):
     def getfo(self, filepath, name):
         """Get file-like object from server
 
-           name: containt of file in filepath in bytes
-           filepath: filename+extension for file at server
+        name: containt of file in filepath in bytes
+        filepath: filename+extension for file at server
         """
         self.server.retrbinary("RETR " + filepath, name.write)
 
@@ -56,7 +56,7 @@ class FTPServer(AbstractFTPServer):
         self.server.delete(file)
 
     def listdir(self, path=""):
-        """ List directory in path """
+        """List directory in path"""
         files = []
         try:
             files = self.server.nlst(path)
@@ -65,9 +65,9 @@ class FTPServer(AbstractFTPServer):
         return files
 
     def cd(self, path):
-        """ Change directory """
+        """Change directory"""
         self.server.cwd(path)
 
     def exists(self, file, path=""):
-        """ See if file exists in path """
+        """See if file exists in path"""
         return file in self.server.nlst(path)

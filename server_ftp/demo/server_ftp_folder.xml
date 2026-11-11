@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-
     <!--- FTP folders-->
     <record id="ftp_push_folder" model="server.ftp.folder">
         <field name="name">Push folder</field>
@@ -13,5 +12,4 @@
         <field name="path">/push_folder</field>
         <field name="server_id" ref="ftp_server" />
     </record>
-
 </odoo>
