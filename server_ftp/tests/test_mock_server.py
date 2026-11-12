@@ -31,3 +31,16 @@ class TestMockServer(MockServerCase):
         self.assertFalse(directory.exists("hello.txt"))
         self.assertEqual(directory.listdir(), [])
         directory.close()
+
+    def test_server_type_instances(self):
+        """Every selection value maps to a server class."""
+        for value, _label in self.server._fields["server_type"].selection:
+            self.server.server_type = value
+            self.assertTrue(self.server._make_server_instance())
+
+    def test_multi_write_resets_state(self):
+        """Connection edits on several records reset state."""
+        servers = self.server | self.server.copy()
+        servers.write({"state": "done"})
+        servers.write({"host": "other.acme.com"})
+        self.assertEqual(set(servers.mapped("state")), {"draft"})

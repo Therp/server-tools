@@ -1,1 +1,1 @@
-- Nikos Tsirintanis \<<ntsirintanis@therp.nl>\>
+- Nikos Tsirintanis <ntsirintanis@therp.nl>

@@ -1,29 +1,34 @@
 # Copyright 2020 - 2023 Therp BV <https://therp.nl>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
-import pysftp
+import posixpath
+
+import paramiko
 
 from .abstract_ftp_server import AbstractFTPServer
 
 
 class SFTPServer(AbstractFTPServer):
+    def __init__(self):
+        super().__init__()
+        self.transport = None
+
     def connect(self, host, port, user, password):
         """Connect to object"""
-        # TODO: make this secure
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
-        self.server = pysftp.Connection(
-            host=host,
-            port=port,
-            username=user,
-            password=password,
-            cnopts=cnopts,
-        )
+        # paramiko directly, pysftp is no longer compatible
+        # TODO: make this secure (host key verification)
+        self.transport = paramiko.Transport((host, port))
+        self.transport.connect(username=user, password=password)
+        self.server = paramiko.SFTPClient.from_transport(self.transport)
         return self
 
     def close(self):
         """Close connection"""
-        self.server.close()
+        if self.server:
+            self.server.close()
+        if self.transport:
+            self.transport.close()
         self.server = None
+        self.transport = None
 
     def putfo(self, file_like, name):
         """Transfer file-like object to server
@@ -58,7 +63,7 @@ class SFTPServer(AbstractFTPServer):
 
     def listdir(self, path=""):
         """List directory in path"""
-        return self.server.listdir(path)
+        return self.server.listdir(path or ".")
 
     def cd(self, path):
         """Change directory"""
@@ -66,4 +71,8 @@ class SFTPServer(AbstractFTPServer):
 
     def exists(self, file, path=""):
         """See if file exists in path"""
-        return self.server.exists(path + file)
+        try:
+            self.server.stat(posixpath.join(path, file))
+        except FileNotFoundError:
+            return False
+        return True

@@ -8,10 +8,10 @@ from odoo.tests.common import TransactionCase
 class MockServerCase(TransactionCase):
     """Test MockServer."""
 
-    def setUp(self):
-        super().setUp()
-        server_model = self.env["server.ftp"]
-        self.server = server_model.create(
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.server = cls.env["server.ftp"].create(
             {
                 "name": "Mock FTP Server for testing",
                 "server_type": "mock",
@@ -21,11 +21,10 @@ class MockServerCase(TransactionCase):
                 "state": "draft",
             }
         )
-        folder_model = self.env["server.ftp.folder"]
-        self.folder = folder_model.create(
+        cls.folder = cls.env["server.ftp.folder"].create(
             {
                 "name": "Mock FTP Folder",
-                "server_id": self.server.id,
+                "server_id": cls.server.id,
                 "path": "example_directory",
             }
         )

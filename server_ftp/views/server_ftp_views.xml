@@ -4,7 +4,7 @@
         <field name="name">server.ftp.list</field>
         <field name="model">server.ftp</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name" />
                 <field name="server_type" />
                 <field name="host" />
@@ -18,7 +18,7 @@
                     string="Test connection"
                     class="oe_highlight"
                 />
-            </tree>
+            </list>
         </field>
     </record>
     <record id="view_server_ftp_form" model="ir.ui.view">
@@ -50,7 +50,7 @@
                                 name="folder_ids"
                                 context="{'default_server_id': id}"
                             >
-                                <tree editable="top" create="false" delete="false">
+                                <list editable="top" create="false" delete="false">
                                     <field name="name" />
                                     <field name="path" />
                                     <field
@@ -58,10 +58,9 @@
                                         string="Server"
                                         readonly="True"
                                     />
-                                </tree>
+                                </list>
                             </field>
                         </page>
-                        <page string="Security" />
                     </notebook>
                 </sheet>
             </form>
@@ -108,7 +107,7 @@
     <record id="action_ftp_ftp_server_tree" model="ir.actions.act_window">
         <field name="name">Servers</field>
         <field name="res_model">server.ftp</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_server_ftp_tree" />
         <field name="search_view_id" ref="view_ftp_server_search" />
         <field name="context">{'search_default_unconfirmed': 1}</field>
